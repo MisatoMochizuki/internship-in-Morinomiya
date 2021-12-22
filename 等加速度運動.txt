@@ -1,0 +1,44 @@
+from bokeh.layouts import column
+from bokeh.models import CustomJS,ColumnDataSource,Slider
+from bokeh.plotting import Figure,output_file,show
+import math
+
+output_file("slider.html")
+
+t=[t*0.1 for t in range(0,100)]
+y=t
+
+source=ColumnDataSource(data=dict(y=y,t=t))
+plot=Figure(plot_width=600,plot_height=400,x_range=[0,10],y_range=[0,100],title="ìôâ¡ë¨ìxâ^ìÆ",x_axis_label="éûä‘Çî(sec)",y_axis_label="ãóó£Çô(m)")
+plot.line(x='t',y='y',source=source,line_width=3,line_alpha=0.9,line_color="pink")
+
+y0=Slider(start=0,end=50,value=1,step=1,title="èâë¨ìx")
+v0=Slider(start=0,end=10,value=1,step=0.1,title="ë¨Ç≥")
+a=Slider(start=0,end=10,value=1,step=0.1,title="â¡ë¨ìx")
+
+callback=CustomJS(args=dict(source=source,y0=y0,v0=v0,a=a),code="""
+
+
+    var data = source.data;
+    var y0 = y0.value
+    var v0 = v0.value
+    var a = a.value
+    y = data['y']
+    t = data['t']
+    for(i=0;i<t.length;i++){
+    y[i]=(y0+(v0*t[i])+((1/2)*a*(t[i]**2)))
+    }
+
+    source.change.emit();
+    """)
+
+
+
+
+layout=column(plot,y0,v0,a)
+y0.js_on_change('value',callback)
+v0.js_on_change('value',callback)
+a.js_on_change('value',callback)
+
+
+show(layout)
